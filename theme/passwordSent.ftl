@@ -14,12 +14,11 @@
     [@helpers.header]
       [#-- Custom header code goes here --]
     [/@helpers.header]
-
-    [@helpers.main title=theme.message('forgot-password-email-sent-title')]
-      <p>
-        ${theme.message('forgot-password-email-sent', email)}
-      </p>
-      <p class="mt-2">[@helpers.link url="/oauth2/authorize"]${theme.message('return-to-login')}[/@helpers.link]</p>
+    
+    [@helpers.main title=theme.message('forgot-password-email-sent-title', email) subtitle=theme.message('forgot-password-email-sent-subtitle') ]
+      <div class="grid gap-6">
+        [@helpers.goBackToLoginlink/]
+      </div>
     [/@helpers.main]
 
     [@helpers.footer]

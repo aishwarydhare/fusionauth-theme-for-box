@@ -11,28 +11,25 @@
     [@helpers.captchaScripts showCaptcha=showCaptcha captchaMethod=tenant.captchaConfiguration.captchaMethod siteKey=tenant.captchaConfiguration.siteKey/]
     [#-- Custom <head> code goes here --]
   [/@helpers.head]
+
   [@helpers.body]
     [@helpers.header]
       [#-- Custom header code goes here --]
     [/@helpers.header]
 
-    [@helpers.main title=theme.message('forgot-password-title')]
-      <form action="${request.contextPath}/password/forgot" method="POST" class="full">
+    [@helpers.splitMain title=theme.message('forgot-password-title') subtitle=theme.message('forgot-password-subtitle')]
+      <form action="${request.contextPath}/password/forgot" method="POST" class="grid gap-6">
         [@helpers.oauthHiddenFields/]
+                
+          [@helpers.input type="text" name="email" id="email" autocapitalize="none" autofocus=true autocomplete="on" autocorrect="off" placeholder=theme.message("loginId") required=true label=theme.message("emailInputLabel") /]
 
-        <p>
-          ${theme.message('forgot-password')}
-        </p>
-        <fieldset class="push-less-top">
-          [@helpers.input type="text" name="email" id="email" autocapitalize="none" autofocus=true autocomplete="on" autocorrect="off" placeholder=theme.message('email') leftAddon="user" required=true/]
           [@helpers.captchaBadge showCaptcha=showCaptcha captchaMethod=tenant.captchaConfiguration.captchaMethod siteKey=tenant.captchaConfiguration.siteKey/]
-        </fieldset>
-        <div class="form-row">
-          [@helpers.button text=theme.message('submit')/]
-          <p class="mt-2">[@helpers.link url="/oauth2/authorize"]${theme.message('return-to-login')}[/@helpers.link]</p>
-        </div>
+        
+          [@helpers.button text=theme.message("forgot-password-submit") styleAs="primary" /]
+
+          [@helpers.goBackToLoginlink/]          
       </form>
-    [/@helpers.main]
+    [/@helpers.splitMain]
 
     [@helpers.footer]
       [#-- Custom footer code goes here --]

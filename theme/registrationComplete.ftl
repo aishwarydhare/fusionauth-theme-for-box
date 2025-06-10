@@ -14,10 +14,10 @@
       [#-- Custom header code goes here --]
     [/@helpers.header]
 
-    [@helpers.main title=theme.message('registration-verification-complete-title')]
-      <p>
-        ${theme.message('registration-verification-complete')}
-      </p>
+    [@helpers.main title=theme.message('registration-verification-complete-title') subtitle=theme.message('registration-verification-complete') ]
+      <div class="grid gap-6">
+        [@helpers.goBackToLoginlink/]
+      </div>
     [/@helpers.main]
 
     [@helpers.footer]

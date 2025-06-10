@@ -13,15 +13,17 @@
     [@helpers.header]
       [#-- Custom header code goes here --]
     [/@helpers.header]
+    
+    [@helpers.main title=theme.message("email-verification-complete-title") subtitle=theme.message("email-verification-complete") ]
 
-    [@helpers.main title=theme.message("email-verification-complete-title")]
-      <p>
-        ${theme.message("email-verification-complete")}
-      </p>
+      <div class="grid gap-6">
+        [@helpers.goBackToLoginlink/]
+      </div>
     [/@helpers.main]
 
     [@helpers.footer]
       [#-- Custom footer code goes here --]
     [/@helpers.footer]
   [/@helpers.body]
+
 [/@helpers.html]

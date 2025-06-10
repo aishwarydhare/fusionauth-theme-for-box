@@ -16,10 +16,7 @@
       [#-- Custom header code goes here --]
     [/@helpers.header]
 
-    [@helpers.main title=theme.message("email-verification-sent-title")]
-      <p>
-        ${theme.message("email-verification-sent", email)}
-      </p>
+    [@helpers.main title=theme.message("email-verification-sent-title") subtitle=theme.message("email-verification-sent", email)]
     [/@helpers.main]
 
     [@helpers.footer]

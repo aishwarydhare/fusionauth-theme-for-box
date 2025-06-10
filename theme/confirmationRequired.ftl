@@ -15,30 +15,28 @@
     [@helpers.header]
       [#-- Custom header code goes here --]
     [/@helpers.header]
-
-    [@helpers.main title=theme.message("confirmation-required")]
+    
+    [@helpers.main title=theme.message("confirmation-required") subtitle=theme.message("{description}confirmation-required-${confirmationRequiredReason}")?no_esc]
 
       [#-- Message specific to the reason the user is being required to confirm.
            - Adding ?no_esc to allow the message to include <br> (line breaks)
        --]
-      [#if confirmationRequiredReason?has_content]
-        <p> ${theme.message("{description}confirmation-required-${confirmationRequiredReason}")?no_esc} </p>
-      [/#if]
-
-      [#-- Generic detail about what to do next --]
-      <p class="mb-4">${theme.message("{description}confirmation-required-ignore")}</p>
-
-      <form action="${request.contextPath}/confirmation-required" method="POST" class="full">
-        <input type="hidden" name="csrfToken" value="${csrfToken!""}"/>
-        [#list request.parameters as key,value]
-          [#list value as v]
-          <input type="hidden" name="${key!""}" value="${v!""}"/>
-          [/#list]
-        [/#list]
-        <div class="form-row">
-          [@helpers.button text=theme.message('continue') /]
+      <div class="grid gap-6 text-center">
+        [#-- Generic detail about what to do next --]
+        <div class="grid gap-3">
+          <p>${theme.message("{description}confirmation-required-ignore")}</p>
         </div>
-      </form>
+
+        <form action="${request.contextPath}/confirmation-required" method="POST" class="form-row grid gap-3">
+          <input type="hidden" name="csrfToken" value="${csrfToken!""}"/>
+          [#list request.parameters as key,value]
+            [#list value as v]
+            <input type="hidden" name="${key!""}" value="${v!""}"/>
+            [/#list]
+          [/#list]
+          [@helpers.button text=theme.message('continue') class="inline-flex h-10 px-4 py-2 w-full items-center justify-center whitespace-nowrap rounded-md text-sm font-medium text-white bg-fuchsia-900 hover:bg-gray-800 transition-colors ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50" /]
+        </form>
+      </div>
     [/@helpers.main]
 
     [@helpers.footer]

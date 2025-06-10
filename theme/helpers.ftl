@@ -79,13 +79,21 @@
   <link rel="icon" type="image/png" sizes="96x96" href="/images/favicon-96x96.png">
   <link rel="icon" type="image/png" sizes="128" href="/images/favicon-128.png">
 
+  [#-- Fonts --]
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap"
+    rel="stylesheet"
+  />
+
   [#-- End Favicon Madness --]
 
   <link rel="stylesheet" href="/css/font-awesome-4.7.0.min.css"/>
-  <link rel="stylesheet" href="/css/fusionauth-style.css?version=${version}"/>
-  [#if theme.type == "simple"]
+  [#-- <link rel="stylesheet" href="/css/fusionauth-style.css?version=${version}"/> --]
+  [#-- [#if theme.type == "simple"]
     <link rel="stylesheet" href="/css/simple-theme.css?version=${version}"/>
-  [/#if]
+  [/#if] --]
 
   [#-- Theme Stylesheet, only Authorize defines this boolean.
        Using the ?no_esc on the stylesheet to allow selectors that contain a > symbols.
@@ -128,6 +136,8 @@
     FusionAuth.Version = "${version}";
   </script>
 
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@1.3.2/dist/css/tabler-socials.min.css" />
+
   [#-- The nested, page-specific head HTML goes here --]
   [#nested/]
 
@@ -135,14 +145,15 @@
 [/#macro]
 
 [#macro body]
-<body class="app-sidebar-closed">
-<main>
+<body class="app-sidebar-closed bg-gray-100 font-['Poppins']">
+<main style="padding-top: 0px;">
   [#nested/]
 </main>
 </body>
 [/#macro]
 
 [#macro header]
+  [#--
   [#if theme.type != 'simple' || request.requestURI == "/" || request.requestURI?starts_with("/account")]
     <header class="app-header">
       <div class="right-menu" [#if request.requestURI == "/"]style="display: block !important;" [/#if]>
@@ -162,6 +173,7 @@
   [/#if]
 
   [#nested/]
+  --]
 [/#macro]
 
 [#macro alternativeLoginsScript clientId identityProviders]
@@ -197,30 +209,104 @@
   [/#if]
 [/#macro]
 
-[#macro main title="Login" rowClass="row center-xs" colClass="col-xs col-sm-8 col-md-6 col-lg-5 col-xl-4"]
-<main class="page-body container">
-  [@printErrorAlerts rowClass colClass/]
-  [@printInfoAlerts rowClass colClass/]
-  <div class="${rowClass}">
-    <div class="${colClass}">
-      <div class="panel" data-in-progress>
-        <div class="logo-container">
-          <img id="imgThemeLogo" alt="logo"/>
+[#macro main title="" subtitle="" headingIconClass=""]
+<main class="grid min-h-svh">
+  <div class="flex flex-col gap-4 p-6 md:p-10">    
+    <div class="hidden flex justify-center gap-2 md:justify-start" data-in-progress>
+        <a href="#" class="flex items-center gap-2 font-medium">
+            <div class="bg-black text-white flex size-6 items-center justify-center rounded-md">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4">
+                    <path d="M3 3h18v18H3z"/>
+                    <path d="M3 9h18"/>
+                    <path d="M3 15h18"/>
+                </svg>
+            </div>
+            Acme Inc.
+        </a>
+    </div>
+
+    <div class="flex flex-1 items-center justify-center" data-in-progress>
+      <div class="w-full max-w-md">
+        <div class="flex flex-col gap-6">
+          <div class="flex flex-col items-center gap-2 text-center">
+            [#if headingIconClass?has_content]
+              <div class="flex items-center justify-center">
+                [#if headingIconClass == "envelope-circle-check"]
+                  <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8.33398 18.75L37.1382 35.0707C47.7573 41.0875 52.244 41.0875 62.8631 35.0707L91.6673 18.75" stroke="black" stroke-width="6.25" stroke-linejoin="round"/>
+                    <path d="M62.5 72.9166C62.5 72.9166 64.5833 72.9166 66.6667 77.0833C66.6667 77.0833 73.2842 66.6666 79.1667 64.5833" stroke="black" stroke-width="6.25" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M91.6667 70.8333C91.6667 82.3392 82.3392 91.6667 70.8333 91.6667C59.3275 91.6667 50 82.3392 50 70.8333C50 59.3275 59.3275 50 70.8333 50C82.3392 50 91.6667 59.3275 91.6667 70.8333Z" stroke="black" stroke-width="6.25" stroke-linecap="round"/>
+                    <path d="M37.849 82.2907C39.5744 82.3341 41.0082 80.9707 41.0516 79.2453C41.0951 77.5199 39.7316 76.0862 38.0063 76.0424L37.849 82.2907ZM88.5198 43.7833C88.4961 45.5091 89.8761 46.9274 91.6015 46.9508C93.3273 46.9745 94.7456 45.5949 94.769 43.8691L88.5198 43.7833ZM38.0062 11.6099C46.0431 11.4077 54.0006 11.4077 62.0377 11.61L62.1952 5.36196C54.0531 5.15704 45.9911 5.157 37.849 5.36192L38.0062 11.6099ZM5.27539 37.598C5.18685 41.7583 5.18685 45.8941 5.27539 50.0545L11.524 49.9216C11.4373 45.8499 11.4373 41.8028 11.524 37.7311L5.27539 37.598ZM37.849 5.36192C31.3798 5.52471 26.1866 5.64746 22.035 6.37163C17.7425 7.12042 14.2545 8.55654 11.3082 11.5188L15.7396 15.9263C17.5089 14.1473 19.6599 13.1303 23.1091 12.5287C26.6991 11.9024 31.3499 11.7774 38.0062 11.6099L37.849 5.36192ZM11.524 37.7311C11.6623 31.2361 11.7668 26.7118 12.3748 23.2051C12.957 19.8468 13.9576 17.718 15.7396 15.9263L11.3082 11.5188C8.37481 14.4683 6.94956 17.9102 6.21664 22.1375C5.50947 26.2163 5.40964 31.2924 5.27539 37.598L11.524 37.7311ZM62.0377 11.61C68.6944 11.7775 73.3452 11.9025 76.9352 12.5287C80.3844 13.1304 82.5352 14.1474 84.3044 15.9263L88.7361 11.5189C85.7898 8.55663 82.3015 7.1205 78.009 6.37171C73.8577 5.6475 68.6644 5.52475 62.1952 5.36196L62.0377 11.61ZM94.769 37.5981C94.6344 31.2925 94.5348 26.2164 93.8273 22.1375C93.0948 17.9103 91.6694 14.4683 88.7361 11.5189L84.3044 15.9263C86.0865 17.718 87.0873 19.8468 87.6694 23.2052C88.2773 26.7119 88.3819 31.2362 88.5202 37.7312L94.769 37.5981ZM38.0063 76.0424C31.35 75.8749 26.6991 75.7499 23.1091 75.1237C19.6599 74.522 17.5089 73.5053 15.7397 71.7262L11.3083 76.1337C14.2545 79.0958 17.7426 80.532 22.035 81.2808C26.1866 82.0049 31.3798 82.1278 37.849 82.2907L38.0063 76.0424ZM5.27539 50.0545C5.40964 56.3599 5.50952 61.4362 6.21668 65.5149C6.94956 69.7424 8.37481 73.1841 11.3083 76.1337L15.7397 71.7262C13.9576 69.9345 12.9571 67.8057 12.3748 64.4474C11.7668 60.9407 11.6623 56.4162 11.524 49.9216L5.27539 50.0545ZM91.6444 43.8262C94.769 43.8691 94.769 43.8691 94.769 43.8691C94.769 43.8699 94.769 43.8682 94.769 43.8691C94.769 43.867 94.7694 43.8607 94.7694 43.857C94.7694 43.8495 94.7694 43.8387 94.7698 43.8241C94.7702 43.7953 94.7706 43.7528 94.7715 43.6987C94.7727 43.5895 94.7744 43.4316 94.7765 43.2349C94.7806 42.842 94.7856 42.2924 94.7886 41.6665C94.7952 40.4224 94.7952 38.8478 94.769 37.5981L88.5202 37.7312C88.5448 38.8943 88.5452 40.4005 88.539 41.634C88.5356 42.247 88.5306 42.7853 88.5269 43.1708C88.5248 43.3628 88.5231 43.517 88.5219 43.6224C88.5211 43.6753 88.5206 43.7157 88.5202 43.7428C88.5202 43.7566 88.5198 43.767 88.5198 43.7737C88.5198 43.777 88.5198 43.7816 88.5198 43.7833C88.5198 43.7833 88.5198 43.7833 91.6444 43.8262Z" fill="black"/>
+                  </svg>
+                [/#if]
+              </div>
+            [/#if]
+            [#if title?has_content]
+              <h1 class="text-3xl font-semibold whitespace-nowrap">${title}</h1>
+            [/#if]
+            [#if subtitle?has_content]
+              <p class="text-muted-foreground text-lg text-neutral-500">
+                ${subtitle}
+              </p>
+            [/#if]
+            </p>
+          </div>
+          <main class="flex flex-col gap-6">
+            [#nested/]
+          </main>
+          <div class="flex justify-center p-6">
+            [@localSelector/]
+          </div>
         </div>
-        [#if title?has_content]
-          <h2>${title}</h2>
-        [/#if]
-        <main>
-          [#nested/]
-        </main>
       </div>
     </div>
   </div>
-  <div class="${rowClass}">
-    <div class="${colClass}">
-      [@localSelector/]
+</main>
+[/#macro]
+
+[#macro splitMain title="Login" subtitle="" splitSideImage="/placeholder.svg"]
+<main class="grid min-h-svh lg:grid-cols-2">
+  <div class="flex flex-col gap-4 p-6 md:p-10">    
+    <div class="hidden flex justify-center gap-2 md:justify-start" data-in-progress>
+        <a href="#" class="flex items-center gap-2 font-medium">
+            <div class="bg-black text-white flex size-6 items-center justify-center rounded-md">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4">
+                    <path d="M3 3h18v18H3z"/>
+                    <path d="M3 9h18"/>
+                    <path d="M3 15h18"/>
+                </svg>
+            </div>
+            Acme Inc.
+        </a>
+    </div>
+
+    <div class="flex flex-1 items-center justify-center">
+      <div class="w-full max-w-md">
+        <div class="flex flex-col gap-6">
+          <div class="flex flex-col items-center gap-2 text-center">
+            [#if title?has_content]
+              <h1 class="text-3xl font-semibold">${title}</h1>
+            [/#if]
+            [#if subtitle?has_content]
+              <p class="text-muted-foreground text-lg text-neutral-500">
+                ${subtitle}
+              </p>
+            [/#if]
+            </p>
+          </div>
+          <main class="flex flex-col gap-6">
+            [#nested/]
+          </main>
+        </div>
+      </div>
     </div>
   </div>
+  
+  <div class="relative hidden lg:block pt-6 pb-6 pr-6">
+      <div class="h-full w-full rounded-2xl bg-gradient-to-r from-indigo-500 from-10% via-sky-500 via-30% to-emerald-500 to-90%">
+      </div>
+  </div>
+  
 </main>
 [/#macro]
 
@@ -347,33 +433,33 @@
 [/#macro]
 
 [#macro footer]
+  [#--
   [#nested/]
+  --]
+
+  [#-- [@localSelector/] --]
 
   [#-- Powered by FusionAuth branding. This backlink helps FusionAuth web ranking so more
        people can find us! However, we always want to give the developer choice, remove this if you like. --]
+  [#--
   <div id="fa-footer" style="position: fixed; bottom: 5px; right: 0; padding-bottom: 5px; padding-right: 10px; align-items: center">
     <span style="padding-right: 5px;">Powered by </span>
     <a href="https://fusionauth.io" title="The best developer IAM in the universe!">
       <img src="/images/footer-logo.svg" alt="FusionAuth" height="24" style="margin-bottom: -7px;">
     </a>
   </div>
+  --]
 [/#macro]
 
 [#-- Below are the social login buttons and helpers --]
+[#assign socialLoginButtonClasses = "login-button inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md text-sm font-medium h-10 px-3 shadow-[0_0px_6px_rgba(0,0,0,0.1)] hover:bg-accent hover:text-accent-foreground"]
+
 [#macro appleButton identityProvider clientId]
  [#-- https://developer.apple.com/design/human-interface-guidelines/sign-in-with-apple/overview/buttons/ --]
- <button id="apple-login-button" class="apple login-button" data-scope="${identityProvider.lookupScope(clientId)!''}" data-services-id="${identityProvider.lookupServicesId(clientId)}">
-   <div>
-     <div class="icon">
-      <svg version="1.1" viewBox="4 6 30 30" xmlns="http://www.w3.org/2000/svg">
-        <g id="Left-Black-Logo-Large" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-          <path class="cls-1" d="M19.8196726,13.1384615 C20.902953,13.1384615 22.2608678,12.406103 23.0695137,11.4296249 C23.8018722,10.5446917 24.3358837,9.30883662 24.3358837,8.07298156 C24.3358837,7.9051494 24.3206262,7.73731723 24.2901113,7.6 C23.0847711,7.64577241 21.6353115,8.4086459 20.7656357,9.43089638 C20.0790496,10.2090273 19.4534933,11.4296249 19.4534933,12.6807374 C19.4534933,12.8638271 19.4840083,13.0469167 19.4992657,13.1079466 C19.5755531,13.1232041 19.6976128,13.1384615 19.8196726,13.1384615 Z M16.0053051,31.6 C17.4852797,31.6 18.1413509,30.6082645 19.9875048,30.6082645 C21.8641736,30.6082645 22.2761252,31.5694851 23.923932,31.5694851 C25.5412238,31.5694851 26.6245041,30.074253 27.6467546,28.6095359 C28.7910648,26.9312142 29.2640464,25.2834075 29.2945613,25.2071202 C29.1877591,25.1766052 26.0904927,23.9102352 26.0904927,20.3552448 C26.0904927,17.2732359 28.5316879,15.8848061 28.6690051,15.7780038 C27.0517133,13.4588684 24.5952606,13.3978385 23.923932,13.3978385 C22.1082931,13.3978385 20.6283185,14.4963764 19.6976128,14.4963764 C18.6906198,14.4963764 17.36322,13.4588684 15.7917006,13.4588684 C12.8012365,13.4588684 9.765,15.9305785 9.765,20.5993643 C9.765,23.4982835 10.8940528,26.565035 12.2824825,28.548506 C13.4725652,30.2268277 14.5100731,31.6 16.0053051,31.6 Z" id=""  fill-rule="nonzero"></path>
-        </g>
-      </svg>
-     </div>
-     <div class="text">${identityProvider.lookupButtonText(clientId)?trim}</div>
-   </div>
- </button>
+  <button type="button" id="apple-login-button" data-scope="${identityProvider.lookupScope(clientId)!''}" data-services-id="${identityProvider.lookupServicesId(clientId)}" class="apple ${socialLoginButtonClasses}">
+    <span class="social social-app-apple" style="height:1rem;"></span>
+    ${identityProvider.type}
+  </button>
 [/#macro]
 
 [#macro epicButton identityProvider clientId]
@@ -394,37 +480,20 @@
 [/#macro]
 
 [#macro facebookButton identityProvider clientId]
- <button id="facebook-login-button" class="facebook login-button" data-login-method="${identityProvider.lookupLoginMethod(clientId)!''}" data-permissions="${identityProvider.lookupPermissions(clientId)!''}" data-identity-provider-id="${identityProvider.id}">
-   <div>
-     <div class="icon">
-       <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 216 216">
-         <path class="cls-1" d="M204.1 0H11.9C5.3 0 0 5.3 0 11.9v192.2c0 6.6 5.3 11.9 11.9 11.9h103.5v-83.6H87.2V99.8h28.1v-24c0-27.9 17-43.1 41.9-43.1 11.9 0 22.2.9 25.2 1.3v29.2h-17.3c-13.5 0-16.2 6.4-16.2 15.9v20.8h32.3l-4.2 32.6h-28V216h55c6.6 0 11.9-5.3 11.9-11.9V11.9C216 5.3 210.7 0 204.1 0z"></path>
-       </svg>
-     </div>
-     <div class="text">${identityProvider.lookupButtonText(clientId)?trim}</div>
-   </div>
- </button>
+  <button type="button" id="facebook-login-button" data-login-method="${identityProvider.lookupLoginMethod(clientId)!''}" data-permissions="${identityProvider.lookupPermissions(clientId)!''}" data-identity-provider-id="${identityProvider.id}" class="facebook ${socialLoginButtonClasses}">
+    <span class="social social-app-facebook" style="height:1rem;"></span>
+    ${identityProvider.type}
+  </button>
 [/#macro]
 
 [#macro googleButton identityProvider clientId idpRedirectState=""]
   [#-- When using this loginMethod - the Google JavaScript API is not used at all. --]
   [#if identityProvider.lookupLoginMethod(clientId) == "UseRedirect"]
-    <button id="google-login-button" class="google login-button" data-login-method="UseRedirect" data-scope="${identityProvider.lookupScope(clientId)!''}" data-identity-provider-id="${identityProvider.id}">
-      <div>
-       <div class="icon">
-         <svg version="1.1" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-           <g>
-             <path class="cls-1" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path>
-             <path class="cls-2" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path>
-             <path class="cls-3" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path>
-             <path class="cls-4" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path>
-             <path class="cls-5" d="M0 0h48v48H0z"></path>
-           </g>
-         </svg>
-       </div>
-       <div class="text">${identityProvider.lookupButtonText(clientId)?trim}</div>
-      </div>
-    </button>
+  <button type="button" id="google-login-button"  data-login-method="UseRedirect" data-scope="${identityProvider.lookupScope(clientId)!''}" data-identity-provider-id="${identityProvider.id}" class="google ${socialLoginButtonClasses}">
+      <span class="social social-app-google" style="height:1rem;"></span>
+      ${identityProvider.type}
+  </button>
+
   [#else] [#-- UsePopup or UseVendorJavaScript --]
     [#--
      Use the Google Identity Service (GIS) API.
@@ -442,7 +511,11 @@
   [/#if]
 [/#macro]
 
-[#macro linkedInBottom identityProvider clientId]
+[#macro linkedInButton identityProvider clientId]
+<button type="button" id="linkedin-login-button" data-login-method="UseRedirect" data-identity-provider-id="${identityProvider.id}" class="linkedin ${socialLoginButtonClasses}">
+  <span class="social social-app-linkedin" style="height:1rem;"></span>
+  ${identityProvider.type}
+</button>
  <button id="linkedin-login-button" class="linkedin login-button" data-login-method="UseRedirect" data-identity-provider-id="${identityProvider.id}">
    <div>
      <div class="icon">
@@ -613,26 +686,116 @@
 
 [#macro alternativeLogins clientId identityProviders passwordlessEnabled bootstrapWebauthnEnabled=false idpRedirectState="" federatedCSRFToken=""]
   [#if identityProviders?has_content || passwordlessEnabled || bootstrapWebauthnEnabled]
-    <div id="login-button-container" class="login-button-container" data-federated-csrf="${federatedCSRFToken}">
-      <div class="hr-container">
-        <hr>
-        <div>${theme.message("or")}</div>
+
+    <div id="login-button-container" class="flex flex-col gap-6 login-button-container" data-federated-csrf="${federatedCSRFToken}">
+    
+      <div class="flex flex-row justify-stretch gap-6 py-2">
+        [#if identityProviders["Apple"]?has_content]
+        <div>
+          [@appleButton identityProvider=identityProviders["Apple"][0] clientId=clientId/]
+        </div>
+        [/#if]
+
+        [#if identityProviders["EpicGames"]?has_content]
+          <div class="form-row push-less-top">
+            [@epicButton identityProvider=identityProviders["EpicGames"][0] clientId=clientId/]
+          </div>
+        [/#if]
+
+        [#if identityProviders["Facebook"]?has_content]
+        <div>
+          [@facebookButton identityProvider=identityProviders["Facebook"][0] clientId=clientId /]
+        </div>
+        [/#if]
+
+        [#if identityProviders["Google"]?has_content]
+        <div>
+          [@googleButton identityProvider=identityProviders["Google"][0] clientId=clientId idpRedirectState=idpRedirectState/]
+        </div>
+        <div>
+          [@googleButton identityProvider=identityProviders["Google"][0] clientId=clientId idpRedirectState=idpRedirectState/]
+        </div>
+        <div>
+          [@googleButton identityProvider=identityProviders["Google"][0] clientId=clientId idpRedirectState=idpRedirectState/]
+        </div>
+        <div>
+          [@googleButton identityProvider=identityProviders["Google"][0] clientId=clientId idpRedirectState=idpRedirectState/]
+        </div>
+        [/#if]
+
+        [#if identityProviders["LinkedIn"]?has_content]
+        <div>
+          [@linkedInButton identityProvider=identityProviders["LinkedIn"][0] clientId=clientId/]
+        </div>
+        [/#if]
+
+        [#if identityProviders["Nintendo"]?has_content]
+          <div class="form-row push-less-top">
+            [@nintendoButton identityProvider=identityProviders["Nintendo"][0] clientId=clientId/]
+          </div>
+        [/#if]
+
+        [#if identityProviders["OpenIDConnect"]?has_content]
+          [#list identityProviders["OpenIDConnect"] as identityProvider]
+            <div class="form-row push-less-top">
+              [@openIDConnectButton identityProvider=identityProvider clientId=clientId/]
+            </div>
+          [/#list]
+        [/#if]
+
+        [#if identityProviders["SAMLv2"]?has_content]
+          [#list identityProviders["SAMLv2"] as identityProvider]
+            <div class="form-row push-less-top">
+              [@samlv2Button identityProvider=identityProvider clientId=clientId/]
+            </div>
+          [/#list]
+        [/#if]
+
+        [#if identityProviders["SonyPSN"]?has_content]
+          <div class="form-row push-less-top">
+            [@sonypsnButton identityProvider=identityProviders["SonyPSN"][0] clientId=clientId/]
+          </div>
+        [/#if]
+
+        [#if identityProviders["Steam"]?has_content]
+          <div class="form-row push-less-top">
+            [@steamButton identityProvider=identityProviders["Steam"][0] clientId=clientId/]
+          </div>
+        [/#if]
+
+        [#if identityProviders["Twitch"]?has_content]
+          <div class="form-row push-less-top">
+            [@twitchButton identityProvider=identityProviders["Twitch"][0] clientId=clientId/]
+          </div>
+        [/#if]
+
+        [#if identityProviders["Twitter"]?has_content]
+        <div class="form-row push-less-top">
+          [@twitterButton identityProvider=identityProviders["Twitter"][0] clientId=clientId/]
+        </div>
+        [/#if]
+
+        [#if identityProviders["Xbox"]?has_content]
+        <div class="form-row push-less-top">
+          [@xboxButton identityProvider=identityProviders["Xbox"][0] clientId=clientId/]
+        </div>
+        [/#if]
+      
       </div>
 
+      <div class="flex flex-col items-center text-center">
       [#if passwordlessEnabled]
-      <div class="form-row push-less-top">
-        [@link url = "/oauth2/passwordless"]
-          <div class="magic login-button">
-            <div>
-              <div class="icon">
-                <i class="fa fa-link"></i>
-              </div>
-              <div class="text">${theme.message('passwordless-button-text')}</div>
-            </div>
-          </div>
+        [@link url = "/oauth2/passwordless" class="w-full"]
+          [@helpers.button text=theme.message("passwordless-button-text") styleAs="primary" /]
         [/@link]
-      </div>
       [/#if]
+      </div>
+
+      <div class="flex flex-col items-center text-center">
+          <p class="text-muted-foreground text-sm text-balance">
+            ${theme.message("orSignInWithEmail")}
+          </p>
+      </div>
 
       [#if bootstrapWebauthnEnabled]
       <div class="form-row push-less-top">
@@ -660,88 +823,8 @@
       </div>
       [/#if]
 
-      [#if identityProviders["Apple"]?has_content]
-      <div class="form-row push-less-top">
-        [@appleButton identityProvider=identityProviders["Apple"][0] clientId=clientId/]
-      </div>
-      [/#if]
-
-      [#if identityProviders["EpicGames"]?has_content]
-        <div class="form-row push-less-top">
-          [@epicButton identityProvider=identityProviders["EpicGames"][0] clientId=clientId/]
-        </div>
-      [/#if]
-
-      [#if identityProviders["Facebook"]?has_content]
-      <div class="form-row push-less-top">
-        [@facebookButton identityProvider=identityProviders["Facebook"][0] clientId=clientId /]
-      </div>
-      [/#if]
-
-      [#if identityProviders["Google"]?has_content]
-      <div class="form-row push-less-top">
-        [@googleButton identityProvider=identityProviders["Google"][0] clientId=clientId idpRedirectState=idpRedirectState/]
-      </div>
-      [/#if]
-
-      [#if identityProviders["LinkedIn"]?has_content]
-      <div class="form-row push-less-top">
-        [@linkedInBottom identityProvider=identityProviders["LinkedIn"][0] clientId=clientId/]
-      </div>
-      [/#if]
-
-      [#if identityProviders["Nintendo"]?has_content]
-        <div class="form-row push-less-top">
-          [@nintendoButton identityProvider=identityProviders["Nintendo"][0] clientId=clientId/]
-        </div>
-      [/#if]
-
-      [#if identityProviders["OpenIDConnect"]?has_content]
-        [#list identityProviders["OpenIDConnect"] as identityProvider]
-          <div class="form-row push-less-top">
-            [@openIDConnectButton identityProvider=identityProvider clientId=clientId/]
-          </div>
-        [/#list]
-      [/#if]
-
-      [#if identityProviders["SAMLv2"]?has_content]
-        [#list identityProviders["SAMLv2"] as identityProvider]
-          <div class="form-row push-less-top">
-            [@samlv2Button identityProvider=identityProvider clientId=clientId/]
-          </div>
-        [/#list]
-      [/#if]
-
-      [#if identityProviders["SonyPSN"]?has_content]
-        <div class="form-row push-less-top">
-          [@sonypsnButton identityProvider=identityProviders["SonyPSN"][0] clientId=clientId/]
-        </div>
-      [/#if]
-
-      [#if identityProviders["Steam"]?has_content]
-        <div class="form-row push-less-top">
-          [@steamButton identityProvider=identityProviders["Steam"][0] clientId=clientId/]
-        </div>
-      [/#if]
-
-      [#if identityProviders["Twitch"]?has_content]
-        <div class="form-row push-less-top">
-          [@twitchButton identityProvider=identityProviders["Twitch"][0] clientId=clientId/]
-        </div>
-      [/#if]
-
-      [#if identityProviders["Twitter"]?has_content]
-      <div class="form-row push-less-top">
-        [@twitterButton identityProvider=identityProviders["Twitter"][0] clientId=clientId/]
-      </div>
-      [/#if]
-
-      [#if identityProviders["Xbox"]?has_content]
-      <div class="form-row push-less-top">
-        [@xboxButton identityProvider=identityProviders["Xbox"][0] clientId=clientId/]
-      </div>
-      [/#if]
     </div>
+    
   [/#if]
 [/#macro]
 
@@ -794,23 +877,23 @@
 [/#macro]
 
 [#-- Input field of type. --]
-[#macro input type name id autocapitalize="none" autocomplete="on" autocorrect="off" autofocus=false spellcheck="false" label="" placeholder="" leftAddon="" required=false tooltip="" disabled=false class="" dateTimeFormat="" value="" uncheckedValue=""]
-<div class="form-row">
+[#macro input type name id autocapitalize="none" autocomplete="on" autocorrect="off" autofocus=false spellcheck="false" label="" placeholder="" leftAddon="" required=false tooltip="" disabled=false class="" dateTimeFormat="" value="" uncheckedValue="" labelClass=""]
+<div class="form-row grid gap-3">
   [#if type == "checkbox"]
-    [@_input_checkbox name=name value=value uncheckedValue=uncheckedValue label=label tooltip=tooltip]
+    [@_input_checkbox name=name value=value uncheckedValue=uncheckedValue label=label tooltip=tooltip labelClass=labelClass]
      [#nested]
     [/@_input_checkbox]
   [#else]
-    [@_input_text type=type name=name id=id autocapitalize=autocapitalize autocomplete=autocomplete autocorrect=autocorrect autofocus=autofocus spellcheck=spellcheck label=label placeholder=placeholder leftAddon=leftAddon required=required tooltip=tooltip disabled=disabled class=class dateTimeFormat=dateTimeFormat/]
+    [@_input_text type=type name=name id=id autocapitalize=autocapitalize autocomplete=autocomplete autocorrect=autocorrect autofocus=autofocus spellcheck=spellcheck label=label placeholder=placeholder leftAddon=leftAddon required=required tooltip=tooltip disabled=disabled class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50" labelClass="text-sm font-medium leading-none ${class}" dateTimeFormat=dateTimeFormat labelClass=labelClass/]
   [/#if]
   [@errors field=name/]
 </div>
 [/#macro]
 
-[#macro _input_text type name id autocapitalize autocomplete autocorrect autofocus spellcheck label placeholder leftAddon required tooltip disabled class dateTimeFormat ]
+[#macro _input_text type name id autocapitalize autocomplete autocorrect autofocus spellcheck label placeholder leftAddon required tooltip disabled class dateTimeFormat labelClass]
   [#if label?has_content]
   [#compress]
-    <label for="${id}"[#if (fieldMessages[name]![])?size > 0] class="error"[/#if]>${label}[#if required] <span class="required">*</span>[/#if]
+    <label for="${id}"[#if (fieldMessages[name]![])?size > 0] class="error text-pink-700 text-sm font-medium leading-none ${labelClass}"[#else] class="text-sm font-medium leading-none ${labelClass}" [/#if]>${label}[#if required] <span class="text-pink-700 required">*</span>[/#if]
     [#if tooltip?has_content]
       <i class="fa fa-info-circle" data-tooltip="${tooltip}"></i>
     [/#if]
@@ -832,6 +915,11 @@
     [#assign the_type=type /]
     [#assign the_class=class /]
   [/#if]
+  [#if (fieldMessages[name]![])?size > 0]
+    [#assign the_class=the_class + " border-pink-700 focus:border-pink-700 focus-visible:ring-2 focus-visible:ring-pink-700" /]
+  [#else]
+    [#assign the_class=the_class + " focus-visible:ring-2 focus-visible:ring-gray-400" /]
+  [/#if]
   <input id="${id}" type="${the_type}" name="${name}" [#if type != "password"]value="${value}"[/#if] class="${the_class}" autocapitalize="${autocapitalize}" autocomplete="${autocomplete}" autocorrect="${autocorrect}" spellcheck="${spellcheck}" [#if autofocus]autofocus="autofocus"[/#if] placeholder="${placeholder}" [#if disabled]disabled="disabled"[/#if]/>
   [#if dateTimeFormat != ""]
     <input type="hidden" name="${name}@dateTimeFormat" value="${dateTimeFormat}"/>
@@ -843,8 +931,8 @@
   [/#if]
 [/#macro]
 
-[#macro _input_checkbox name value uncheckedValue label tooltip]
-<label>
+[#macro _input_checkbox name value uncheckedValue label tooltip labelClass]
+<label class="text-sm font-medium leading-none ${labelClass}">
   [#local actualValue = ("((" + name + ")!'')")?eval/]
   [#local checked = actualValue?is_boolean?then(actualValue == value?boolean, actualValue == value)/]
   [#if uncheckedValue?has_content]
@@ -1018,18 +1106,38 @@
 
 [#macro errors field]
 [#if fieldMessages[field]?has_content]
-<span class="error">[#list fieldMessages[field] as message]${message?no_esc}[#if message_has_next], [/#if][/#list]</span>
+<span class="error text-pink-700 text-xs leading-none">[#list fieldMessages[field] as message]${message?no_esc}[#if message_has_next], [/#if][/#list]</span>
 [/#if]
 [/#macro]
 
-[#macro button text icon="arrow-right" color="blue" disabled=false name="" value=""]
-<button class="${color} button${disabled?then(' disabled', '')}"[#if disabled] disabled="disabled"[/#if][#if name !=""]name="${name}"[/#if][#if value !=""]value="${value}"[/#if]><i class="fa fa-${icon}"></i> ${text}</button>
+[#assign primaryButtonClasses = "inline-flex h-10 px-4 py-2 w-full items-center justify-center whitespace-nowrap rounded-md text-sm font-medium text-white bg-fuchsia-900 hover:bg-gray-800 transition-colors ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50" ]
+
+[#macro button text icon="" color="blue" disabled=false name="" value="" class="" styleAs=""]
+[#if styleAs == "primary"]
+  [#assign the_class = class + " " + primaryButtonClasses /]
+[#else]
+  [#assign the_class = class /]
+[/#if]
+<button class="${color} button${disabled?then(' disabled', '')} ${the_class}"[#if disabled] disabled="disabled"[/#if][#if name !=""]name="${name}"[/#if][#if value !=""]value="${value}"[/#if]> [#if icon != ""]<i class="fa fa-${icon}"></i>[/#if] ${text}</button>
 [/#macro]
 
-[#macro link url extraParameters=""]
-<a href="${url}?tenantId=${(tenantId)!''}&client_id=${(client_id)!''}&nonce=${(nonce?url)!''}&pendingIdPLinkId=${(pendingIdPLinkId)!''}&redirect_uri=${(redirect_uri?url)!''}&response_mode=${(response_mode?url)!''}&response_type=${(response_type?url)!''}&scope=${(scope?url)!''}&state=${(state?url)!''}&timezone=${(timezone?url)!''}&metaData.device.name=${(metaData.device.name?url)!''}&metaData.device.type=${(metaData.device.type?url)!''}${(extraParameters!'')?no_esc}&code_challenge=${(code_challenge?url)!''}&code_challenge_method=${(code_challenge_method?url)!''}&user_code=${(user_code?url)!''}">
+[#macro link url extraParameters="" class=""]
+<a href="${url}?tenantId=${(tenantId)!''}&client_id=${(client_id)!''}&nonce=${(nonce?url)!''}&pendingIdPLinkId=${(pendingIdPLinkId)!''}&redirect_uri=${(redirect_uri?url)!''}&response_mode=${(response_mode?url)!''}&response_type=${(response_type?url)!''}&scope=${(scope?url)!''}&state=${(state?url)!''}&timezone=${(timezone?url)!''}&metaData.device.name=${(metaData.device.name?url)!''}&metaData.device.type=${(metaData.device.type?url)!''}${(extraParameters!'')?no_esc}&code_challenge=${(code_challenge?url)!''}&code_challenge_method=${(code_challenge_method?url)!''}&user_code=${(user_code?url)!''}" class="${class}">
 [#nested/]
 </a>
+[/#macro]
+
+[#macro goBackToLoginlink class="" iconBefore=true]
+  [#assign the_class = "inline-flex h-10 px-4 py-2 w-full items-center justify-center whitespace-nowrap rounded-md text-sm font-medium text-black border-1 border-black bg-white hover:bg-gray-100 transition-colors ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${class}" /]
+  [#if class != ""]
+    [#assign the_class = the_class + " " + class /]
+  [/#if]
+  [@helpers.link url="/oauth2/authorize" class=the_class ]
+    [#if iconBefore == true]
+      <span class="mr-2 text-2xl">&#8592;</span>
+    [/#if]
+    ${theme.message('return-to-login')}
+  [/@helpers.link]
 [/#macro]
 
 [#macro logoutLink redirectURI extraParameters=""]
