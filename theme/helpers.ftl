@@ -783,19 +783,13 @@
       
       </div>
 
-      <div class="flex flex-col items-center text-center">
       [#if passwordlessEnabled]
+      <div class="flex flex-col items-center text-center">
         [@link url = "/oauth2/passwordless" class="w-full"]
           [@helpers.button text=theme.message("passwordless-button-text") styleAs="primary" /]
         [/@link]
+      </div>
       [/#if]
-      </div>
-
-      <div class="flex flex-col items-center text-center">
-          <p class="text-muted-foreground text-sm text-balance">
-            ${theme.message("orSignInWithEmail")}
-          </p>
-      </div>
 
       [#if bootstrapWebauthnEnabled]
       <div class="form-row push-less-top">
@@ -1111,10 +1105,13 @@
 [/#macro]
 
 [#assign primaryButtonClasses = "inline-flex h-10 px-4 py-2 w-full items-center justify-center whitespace-nowrap rounded-md text-sm font-medium text-white bg-fuchsia-900 hover:bg-gray-800 transition-colors ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50" ]
+[#assign blackButtonClasses = "inline-flex h-10 px-4 py-2 w-full items-center justify-center whitespace-nowrap rounded-md text-sm font-medium text-white bg-black hover:bg-gray-800 transition-colors ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50" ]
 
 [#macro button text icon="" color="blue" disabled=false name="" value="" class="" styleAs=""]
 [#if styleAs == "primary"]
   [#assign the_class = class + " " + primaryButtonClasses /]
+[#elseif styleAs == "black"]
+  [#assign the_class = class + " " + blackButtonClasses /]
 [#else]
   [#assign the_class = class /]
 [/#if]
@@ -1152,24 +1149,72 @@
   ${text!default}
 [/#macro]
 
+[#macro faSolidCircleCheck]
+  <svg
+  xmlns="http://www.w3.org/2000/svg"
+  fill="none"
+  viewBox="0 0 512 512">
+    <!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
+    <path
+      d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"
+      fill="currentColor"
+    />
+  </svg> 
+[/#macro]
+
 [#macro passwordRules passwordValidationRules]
-<div class="font-italic">
+<div class="flex flex-col gap-1 text-xs text-neutral-500 border-1 rounded-md p-3" id="passwordRules">
+  [#--
   <span>
-    ${theme.message('password-constraints-intro')}
+     ${theme.message('password-constraints-intro')} 
   </span>
-  <ul>
-    <li>${theme.message('password-length-constraint', passwordValidationRules.minLength, passwordValidationRules.maxLength)}</li>
+  --]
+  <ul class="flex flex-col gap-1.5">
     [#if passwordValidationRules.requireMixedCase]
-      <li>${theme.message('password-case-constraint')}</li>
+      <li class="flex items-center gap-2" id="requireMixedCase">
+        <span class="flex-shrink-0 w-4 h-4">
+          [@faSolidCircleCheck/]
+        </span>
+        <span>${theme.message('password-case-constraint')}</span>
+      </li>
     [/#if]
     [#if passwordValidationRules.requireNonAlpha]
-      <li>${theme.message('password-alpha-constraint')}</li>
+      <li class="flex items-center gap-2" id="requireNonAlpha">
+        <span class="flex-shrink-0 w-4 h-4">
+          [@faSolidCircleCheck/]
+        </span>
+        <span>${theme.message('password-alpha-constraint')}</span>
+      </li>
     [/#if]
     [#if passwordValidationRules.requireNumber]
-      <li>${theme.message('password-number-constraint')}</li>
+      <li class="flex items-center gap-2" id="requireNumber">
+        <span class="flex-shrink-0 w-4 h-4">
+          [@faSolidCircleCheck/]
+        </span>
+        <span>${theme.message('password-number-constraint')}</span>
+      </li>
+    [/#if]
+    <li class="flex items-center gap-2" id="requireLength">
+      <span class="flex-shrink-0 w-4 h-4">
+        [@faSolidCircleCheck/]
+      </span>
+      <span>${theme.message('password-length-constraint', passwordValidationRules.minLength, passwordValidationRules.maxLength)}</span>
+    </li>
+    [#if application.registrationConfiguration.confirmPassword]
+    <li class="flex items-center gap-2" id="requireMatch">
+      <span class="flex-shrink-0 w-4 h-4">
+        [@faSolidCircleCheck/]
+      </span>
+      <span>${theme.message('password-must-match')}</span>
+    </li>
     [/#if]
     [#if passwordValidationRules.rememberPreviousPasswords.enabled]
-      <li>${theme.message('password-previous-constraint', passwordValidationRules.rememberPreviousPasswords.count)}</li>
+      <li class="flex items-center gap-2" id="requirePrevious">
+        <span class="flex-shrink-0 w-4 h-4">
+          [@faSolidCircleCheck/]
+        </span>
+        <span>${theme.message('password-previous-constraint', passwordValidationRules.rememberPreviousPasswords.count)}</span>
+      </li>
     [/#if]
   </ul>
 </div>

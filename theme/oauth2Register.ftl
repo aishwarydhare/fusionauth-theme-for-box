@@ -35,14 +35,109 @@
         }
       });
     </script>
+    <script>
+      /*
+      prompt:
+        on the form, there are two fields with ID #password and #passwordConfirm
+        when the user types in the password field, we need to check if the passwordConfirm field is valid
+        validating all the rules as described above in the #passwordRules div
+        when the input is empty, we need to add the class `text-neutral-500` to the #passwordRules div and all the li elements with the id of the rule
+        when a specific rule is not met, we need to add the class `text-pink-700` to the li element with the id of the rule
+        when a specific rule is met, we need to add the class `text-green-700` to the li element with the id of the rule
+        when all the rules are met, we need to add the class `text-green-700` to the #passwordRules div
+      */
+      "use strict";
+      Prime.Document.onReady(function() {
+        const passwordInput = document.getElementById('password');
+        const passwordConfirmInput = document.getElementById('passwordConfirm');
+        const passwordRulesDiv = document.getElementById('passwordRules');
+        const ruleElements = {
+          requireMixedCase: document.getElementById('requireMixedCase'),
+          requireNonAlpha: document.getElementById('requireNonAlpha'),
+          requireNumber: document.getElementById('requireNumber'),
+          requireLength: document.getElementById('requireLength'),
+          requireMatch: document.getElementById('requireMatch'),
+          requirePrevious: document.getElementById('requirePrevious')
+        };
+
+        function validatePassword(password) {
+          const rules = {
+            requireMixedCase: /(?=.*[a-z])(?=.*[A-Z])/.test(password),
+            requireNonAlpha: /[^a-zA-Z0-9]/.test(password),
+            requireNumber: /[0-9]/.test(password),
+            requireLength: password.length >= ${passwordValidationRules.minLength} && password.length <= ${passwordValidationRules.maxLength},
+            requireMatch: password === passwordConfirmInput.value && password !== '',
+            requirePrevious: true // This would need to be validated server-side
+          };
+
+          // Reset all classes to neutral
+          passwordRulesDiv.classList.remove('text-green-700', 'text-pink-700');
+          passwordRulesDiv.classList.add('text-neutral-500');
+          
+          Object.entries(ruleElements).forEach(([rule, element]) => {
+            if (element) {
+              element.classList.remove('text-green-700', 'text-pink-700');
+              element.classList.add('text-neutral-500');
+            }
+          });
+
+          // If password is empty, return early
+          if (!password) {
+            return;
+          }
+
+          // Check each rule and update classes
+          let allRulesMet = true;
+          Object.entries(rules).forEach(([rule, isValid]) => {
+            const element = ruleElements[rule];
+            if (element) {
+              element.classList.remove('text-neutral-500');
+              if (isValid) {
+                element.classList.add('text-green-700');
+                element.classList.remove('text-pink-700');
+              } else {
+                element.classList.add('text-pink-700');
+                element.classList.remove('text-green-700');
+                allRulesMet = false;
+              }
+            }
+          });
+
+          // Update overall password rules div
+          if (allRulesMet) {
+            passwordRulesDiv.classList.remove('text-neutral-500', 'text-pink-700');
+            passwordRulesDiv.classList.add('text-green-700');
+          } else {
+            passwordRulesDiv.classList.remove('text-neutral-500', 'text-green-700');
+            passwordRulesDiv.classList.add('text-pink-700');
+          }
+        }
+
+        // Add event listeners
+        passwordInput.addEventListener('input', () => validatePassword(passwordInput.value));
+        passwordConfirmInput.addEventListener('input', () => validatePassword(passwordInput.value));
+      });
+    </script>
     [#-- Custom <head> code goes here --]
   [/@helpers.head]
+  
   [@helpers.body]
     [@helpers.header]
       [#-- Custom header code goes here --]
     [/@helpers.header]
 
-    [@helpers.main title=theme.message("register")]
+    [@helpers.splitMain title=theme.message("register")]
+
+      [#--
+      <pre class="text-xs">
+        client_id: ${client_id}
+        passwordlessEnabled: ${passwordlessEnabled?string('yes', 'no')}
+        infoMessages: ${infoMessages}
+        errorMessages: ${errorMessages}
+        fieldMessages: ${fieldMessages?keys?join(", ")}
+      </pre>
+      --]
+
       [#-- During a linking work flow, optionally indicate to the user which IdP is being linked. --]
       [#if devicePendingIdPLink?? || pendingIdPLink??]
         <p class="mt-0">
@@ -59,21 +154,26 @@
         [/#if]
         </p>
       [/#if]
-      <form action="${request.contextPath}/oauth2/register" method="POST" class="full">
+
+      <div class="flex flex-col items-center gap-2 text-center">
+        [@helpers.alternativeLogins clientId=client_id identityProviders=identityProviders passwordlessEnabled=false bootstrapWebauthnEnabled=false idpRedirectState=idpRedirectState federatedCSRFToken=federatedCSRFToken/]
+      </div>
+
+      <div class="flex flex-col items-center text-center">
+          <p class="text-muted-foreground text-sm text-balance">
+            ${theme.message("orSignUpWithEmail")}
+          </p>
+      </div>
+
+      <form action="${request.contextPath}/oauth2/register" method="POST" class="grid gap-6">
         [@helpers.oauthHiddenFields/]
         [@helpers.hidden name="step"/]
         [@helpers.hidden name="registrationState"/]
         [@helpers.hidden name="parentEmailRequired"/]
         [@helpers.hidden name="userVerifyingPlatformAuthenticatorAvailable"/]
 
-        [#-- Show the Password Validation Rules if there is a field error for 'user.password' --]
-        [#if (fieldMessages?keys?seq_contains("user.password")!false) && passwordValidationRules??]
-          [@helpers.passwordRules passwordValidationRules/]
-        [/#if]
-
         [#-- Begin Self Service Custom Registration Form Steps --]
-        [#if fields?has_content]
-          <fieldset>
+        [#if fields?has_content]          
             [@helpers.hidden name="collectBirthDate"/]
             [#list fields as field]
               [@helpers.customField field field.key field?is_first?then(true, false) field.key /]
@@ -85,7 +185,6 @@
             [#if step == totalSteps]
               [@helpers.captchaBadge showCaptcha=showCaptcha captchaMethod=tenant.captchaConfiguration.captchaMethod siteKey=tenant.captchaConfiguration.siteKey/]
             [/#if]
-          </fieldset>
 
           [#if step == totalSteps]
             [@helpers.input id="rememberDevice" type="checkbox" name="rememberDevice" label=theme.message("remember-device") value="true" uncheckedValue="false"]
@@ -101,27 +200,14 @@
           [/#if]
         [#-- End Custom Self Service Registration Form Steps --]
         [#else]
-        [#-- Begin Basic Self Service Registration Form --]
-        <fieldset>
+        [#-- Begin Basic Self Service Registration Form --]        
           [@helpers.hidden name="collectBirthDate"/]
           [#if !collectBirthDate && (!application.registrationConfiguration.birthDate.enabled || hideBirthDate)]
             [@helpers.hidden name="user.birthDate" dateTimeFormat="yyyy-MM-dd"/]
           [/#if]
           [#if collectBirthDate]
-            [@helpers.input type="date" name="user.birthDate" id="birthDate" placeholder=theme.message('birthDate') leftAddon="calendar" class="date-picker" required=true/]
+            [@helpers.input type="date" name="user.birthDate" id="birthDate" placeholder=theme.message('birthDate') label=theme.message("birthDateInputLabel") class="date-picker" required=true/]
           [#else]
-            [#if application.registrationConfiguration.loginIdType == 'email']
-              [@helpers.input type="text" name="user.email" id="email" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" autofocus=true placeholder=theme.message('email') leftAddon="user" required=true/]
-            [#else]
-              [@helpers.input type="text" name="user.username" id="username" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" autofocus=true placeholder=theme.message('username') leftAddon="user" required=true/]
-            [/#if]
-            [@helpers.input type="password" name="user.password" id="password" autocomplete="new-password" placeholder=theme.message('password') leftAddon="lock" required=true/]
-            [#if application.registrationConfiguration.confirmPassword]
-              [@helpers.input type="password" name="passwordConfirm" id="passwordConfirm" autocomplete="new-password" placeholder=theme.message('passwordConfirm') leftAddon="lock" required=true/]
-            [/#if]
-            [#if parentEmailRequired]
-              [@helpers.input type="text" name="user.parentEmail" id="parentEmail" placeholder=theme.message('parentEmail') leftAddon="user" required=true/]
-            [/#if]
             [#if application.registrationConfiguration.birthDate.enabled ||
             application.registrationConfiguration.firstName.enabled    ||
             application.registrationConfiguration.fullName.enabled     ||
@@ -129,41 +215,67 @@
             application.registrationConfiguration.lastName.enabled     ||
             application.registrationConfiguration.mobilePhone.enabled  ||
             application.registrationConfiguration.preferredLanguages.enabled ]
-              <div class="mt-5 mb-5"></div>
               [#if application.registrationConfiguration.firstName.enabled]
-                [@helpers.input type="text" name="user.firstName" id="firstName" placeholder=theme.message('firstName') leftAddon="user" required=application.registrationConfiguration.firstName.required/]
+                [@helpers.input type="text" name="user.firstName" id="firstName" autocapitalize="words" autocorrect="off" spellcheck="false" autofocus=true placeholder=theme.message('firstName') label=theme.message("firstNameInputLabel") required=application.registrationConfiguration.firstName.required/]
               [/#if]
               [#if application.registrationConfiguration.fullName.enabled]
-                [@helpers.input type="text" name="user.fullName" id="fullName" placeholder=theme.message('fullName') leftAddon="user" required=application.registrationConfiguration.fullName.required/]
+                [@helpers.input type="text" name="user.fullName" id="fullName" autocapitalize="words" autocorrect="off" spellcheck="false" autofocus=true placeholder=theme.message('fullName') label=theme.message("fullNameInputLabel") required=application.registrationConfiguration.fullName.required/]
               [/#if]
               [#if application.registrationConfiguration.middleName.enabled]
-                [@helpers.input type="text" name="user.middleName" id="middleName" placeholder=theme.message('middleName') leftAddon="user" required=application.registrationConfiguration.middleName.required/]
+                [@helpers.input type="text" name="user.middleName" id="middleName" autocapitalize="words" autocorrect="off" spellcheck="false" autofocus=true placeholder=theme.message('middleName') label=theme.message("middleNameInputLabel") required=application.registrationConfiguration.middleName.required/]
               [/#if]
               [#if application.registrationConfiguration.lastName.enabled]
-                [@helpers.input type="text" name="user.lastName" id="lastName" placeholder=theme.message('lastName') leftAddon="user" required=application.registrationConfiguration.lastName.required/]
+                [@helpers.input type="text" name="user.lastName" id="lastName" autocapitalize="words" autocorrect="off" spellcheck="false" autofocus=true placeholder=theme.message('lastName') label=theme.message("lastNameInputLabel") required=application.registrationConfiguration.lastName.required/]
               [/#if]
               [#if application.registrationConfiguration.birthDate.enabled && !hideBirthDate]
-                [@helpers.input type="date" name="user.birthDate" id="birthDate" placeholder=theme.message('birthDate') leftAddon="calendar" class="date-picker" required=application.registrationConfiguration.birthDate.required/]
+                [@helpers.input type="date" name="user.birthDate" id="birthDate" placeholder=theme.message('birthDate') label=theme.message("birthDateInputLabel") class="date-picker" required=application.registrationConfiguration.birthDate.required/]
               [/#if]
               [#if application.registrationConfiguration.mobilePhone.enabled]
-                [@helpers.input type="text" name="user.mobilePhone" id="mobilePhone" placeholder=theme.message('mobilePhone') leftAddon="phone" required=application.registrationConfiguration.mobilePhone.required/]
+                [@helpers.input type="text" name="user.mobilePhone" id="mobilePhone" placeholder=theme.message('mobilePhone') label=theme.message("mobilePhoneInputLabel") required=application.registrationConfiguration.mobilePhone.required/]
               [/#if]
               [#if application.registrationConfiguration.preferredLanguages.enabled]
                 [@helpers.locale_select field="" name="user.preferredLanguages" id="preferredLanguages" label=theme.message("preferredLanguage") required=application.registrationConfiguration.preferredLanguages.required /]
               [/#if]
             [/#if]
+            
+            [#if application.registrationConfiguration.loginIdType == 'email']
+              [@helpers.input type="text" name="user.email" id="email" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" autofocus=true placeholder=theme.message('email') label=theme.message("emailInputLabel") required=true/]
+            [#else]
+              [@helpers.input type="text" name="user.username" id="username" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" autofocus=true placeholder=theme.message('username') label=theme.message("usernameInputLabel") required=true/]
+            [/#if]
+
+            [@helpers.input type="password" name="user.password" id="password" autocomplete="new-password" placeholder=theme.message('password') label=theme.message("passwordInputLabel") required=true/]
+            [#if application.registrationConfiguration.confirmPassword]
+              [@helpers.input type="password" name="passwordConfirm" id="passwordConfirm" autocomplete="new-password" placeholder=theme.message('passwordConfirm') label=theme.message("passwordConfirmInputLabel") required=true/]
+            [/#if]
+            [#if parentEmailRequired]
+              [@helpers.input type="text" name="user.parentEmail" id="parentEmail" placeholder=theme.message('parentEmail') leftAddon="user" required=true/]
+            [/#if]
+
+            <div>
+              [#-- Show the Password Validation Rules if there is a field error for 'user.password' --]
+              [@helpers.passwordRules passwordValidationRules/]
+            </div>
+
           [/#if]
           [@helpers.captchaBadge showCaptcha=showCaptcha captchaMethod=tenant.captchaConfiguration.captchaMethod siteKey=tenant.captchaConfiguration.siteKey/]
-        </fieldset>
 
-        [@helpers.input id="rememberDevice" type="checkbox" name="rememberDevice" label=theme.message('remember-device') value="true" uncheckedValue="false"]
-          <i class="fa fa-info-circle" data-tooltip="${theme.message('{tooltip}remember-device')}"></i>[#t/]
-        [/@helpers.input]
+          <div class="flex items-center">
+            <label class="flex items-center space-x-3 group cursor-pointer">
+              <div class="relative w-5 h-5">
+                  <input type="checkbox" id="rememberDevice" name="rememberDevice" value="true" uncheckedValue="false" class="w-5 h-5 appearance-none cursor-pointer border border-gray-300 rounded-md checked:border-transparent checked:bg-black disabled:opacity-60" />
+                  <svg class="absolute transform -translate-x-1/2 -translate-y-1/2 pointer-events-none top-1/2 left-1/2 hidden peer-checked:block" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none">
+                      <path d="M11.6666 3.5L5.24992 9.91667L2.33325 7" stroke="white" stroke-width="1.94437" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+              </div>
+              <span class="text-sm font-medium text-gray-800">
+                ${theme.message("remember-device")}
+              </span>
+            </label>
+            [#-- <i class="fa fa-info-circle pl-2 pr-2 tooltip" data-tooltip="${theme.message('{tooltip}remember-device')}" data-tooltip-target="tooltip"></i>[#t/] --]
+          </div>
 
-        <div class="form-row">
-          [@helpers.button icon="key" text=theme.message('register')/]
-          <p class="mt-2">[@helpers.link url="/oauth2/authorize"]${theme.message('return-to-login')}[/@helpers.link]</p>
-        </div>
+          [@helpers.button text=theme.message('register-now') styleAs="primary" /]
         [/#if]
         [#-- End Basic Self Service Registration Form --]
 
@@ -174,15 +286,15 @@
           </div>
         [/#if]
         [#-- End Self Service Custom Registration Form Step Counter --]
-
-        [#-- Identity Provider Buttons (if you want to include these, remove the if-statement) --]
-        [#if true]
-          [@helpers.alternativeLogins clientId=client_id identityProviders=identityProviders![] passwordlessEnabled=false bootstrapWebauthnEnabled=false idpRedirectState=idpRedirectState federatedCSRFToken=federatedCSRFToken/]
-        [/#if]
-        [#-- End Identity Provider Buttons --]
-
       </form>
-    [/@helpers.main]
+
+      [#if application.registrationConfiguration.enabled]
+        <div class="text-center text-sm">
+          ${theme.message("already-have-an-account")}
+          [@helpers.link class="font-semibold text-fuchsia-900" url="/oauth2/authorize"] ${theme.message("login-now")} [/@helpers.link]
+        </div>
+      [/#if]
+    [/@helpers.splitMain]
 
     [@helpers.footer]
       [#-- Custom footer code goes here --]

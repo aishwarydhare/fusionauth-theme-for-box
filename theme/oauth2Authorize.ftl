@@ -95,6 +95,12 @@
         [@helpers.alternativeLogins clientId=client_id identityProviders=identityProviders passwordlessEnabled=passwordlessEnabled bootstrapWebauthnEnabled=bootstrapWebauthnEnabled idpRedirectState=idpRedirectState federatedCSRFToken=federatedCSRFToken/]
       </div>
 
+      <div class="flex flex-col items-center text-center">
+          <p class="text-muted-foreground text-sm text-balance">
+            ${theme.message("orSignInWithEmail")}
+          </p>
+      </div>
+
       [#if loginFailed]
         <div data-slot="alert" role="alert" class="relative bg-rose-100 w-full rounded-md px-4 py-3 text-sm grid has-[>svg]:grid-cols-[calc(var(--spacing)*4)_1fr] grid-cols-[0_1fr] has-[>svg]:gap-x-3 gap-y-0.5 items-start [&>svg]:size-4 [&>svg]:translate-y-0.5 [&>svg]:text-current">
           <svg class="size-4 translate-y-0.5 text-current" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -103,7 +109,8 @@
             <line x1="12" y1="16" x2="12.01" y2="16"/>
           </svg>
           <div class="col-start-2 min-h-4 tracking-tight">
-            Incorrect email id or password. Please try again or [@helpers.link class="font-semibold text-fuchsia-900" url="${request.contextPath}/password/forgot"]reset your password[/@helpers.link]
+            ${theme.message("incorrect-email-id-or-password")}
+            [@helpers.link class="font-semibold text-fuchsia-900" url="${request.contextPath}/password/forgot"]${theme.message("reset-your-password")}[/@helpers.link]
           </div>
         </div>
       [/#if]
@@ -132,9 +139,9 @@
               </div>
               <span class="text-sm font-medium text-gray-800">
                 ${theme.message("remember-device")}
-                <i class="fa fa-info-circle" data-tooltip="${theme.message('{tooltip}remember-device')}"></i>[#t/]
               </span>
             </label>
+            [#-- <i class="fa fa-info-circle pl-2 pr-2 tooltip" data-tooltip="${theme.message('{tooltip}remember-device')}"></i>[#t/] --]
 
             [#if showPasswordField]
               [@helpers.link class="ml-auto text-sm text-black underline-offset-4 hover:underline" url="${request.contextPath}/password/forgot"]${theme.message("forgot-your-password")}[/@helpers.link]
@@ -142,16 +149,16 @@
           </div>
           
           [#if showPasswordField]
-            [@helpers.button text=theme.message("loginNow") class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-black text-white hover:bg-gray-800 h-10 px-4 py-2 w-full" /]
+            [@helpers.button text=theme.message("login-now") styleAs="black" /]
           [#else]
-            [@helpers.button text=theme.message("next")  class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-black text-white hover:bg-gray-800 h-10 px-4 py-2 w-full" /]
+            [@helpers.button text=theme.message("next") styleAs="black" /]
           [/#if]
       </form>
 
       [#if application.registrationConfiguration.enabled]
         <div class="text-center text-sm">
           ${theme.message("dont-have-an-account")}
-          [@helpers.link class="font-semibold" url="${request.contextPath}/oauth2/register" extraParameters="&bypassTheme=true"] ${theme.message("create-an-account")} [/@helpers.link]
+          [@helpers.link class="font-semibold text-fuchsia-900" url="${request.contextPath}/oauth2/register"] ${theme.message("sign-up-now")} [/@helpers.link]
         </div>
       [/#if]
       
