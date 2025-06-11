@@ -49,25 +49,39 @@
       "use strict";
       Prime.Document.onReady(function() {
         const passwordInput = document.getElementById('password');
+        [#if application.registrationConfiguration.confirmPassword]
         const passwordConfirmInput = document.getElementById('passwordConfirm');
+        [/#if]
         const passwordRulesDiv = document.getElementById('passwordRules');
         const ruleElements = {
           requireMixedCase: document.getElementById('requireMixedCase'),
-          requireNonAlpha: document.getElementById('requireNonAlpha'),
           requireNumber: document.getElementById('requireNumber'),
           requireLength: document.getElementById('requireLength'),
-          requireMatch: document.getElementById('requireMatch'),
-          requirePrevious: document.getElementById('requirePrevious')
+          requirePrevious: document.getElementById('requirePrevious'),
+          
+          [#if passwordValidationRules.requireNonAlpha]
+            requireNonAlpha: document.getElementById('requireNonAlpha'),
+          [/#if]
+
+          [#if application.registrationConfiguration.confirmPassword]
+            requireMatch: document.getElementById('requireMatch'),
+          [/#if]          
         };
 
         function validatePassword(password) {
           const rules = {
             requireMixedCase: /(?=.*[a-z])(?=.*[A-Z])/.test(password),
-            requireNonAlpha: /[^a-zA-Z0-9]/.test(password),
             requireNumber: /[0-9]/.test(password),
             requireLength: password.length >= ${passwordValidationRules.minLength} && password.length <= ${passwordValidationRules.maxLength},
-            requireMatch: password === passwordConfirmInput.value && password !== '',
             requirePrevious: true // This would need to be validated server-side
+            
+            [#if passwordValidationRules.requireNonAlpha]
+              requireNonAlpha: /[^a-zA-Z0-9]/.test(password),
+            [/#if]            
+            
+            [#if application.registrationConfiguration.confirmPassword]
+              requireMatch: password === passwordConfirmInput.value && password !== '',
+            [/#if]            
           };
 
           // Reset all classes to neutral
@@ -115,7 +129,9 @@
 
         // Add event listeners
         passwordInput.addEventListener('input', () => validatePassword(passwordInput.value));
+        [#if application.registrationConfiguration.confirmPassword]
         passwordConfirmInput.addEventListener('input', () => validatePassword(passwordInput.value));
+        [/#if]
       });
     </script>
     [#-- Custom <head> code goes here --]
